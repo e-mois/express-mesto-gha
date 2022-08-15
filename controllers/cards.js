@@ -67,7 +67,7 @@ const likeCard = (req, res) => {
     res.status(STATUS_CODE.success).send(card);
   })
   .catch((error) => {
-    if (error.name === 'CastError') {
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
       res.status(STATUS_CODE.dataError).send({
         "message": "Данные некорректны"
       } )
@@ -92,7 +92,7 @@ const dislikeCard = (req, res) => {
     res.status(STATUS_CODE.success).send(card);
   })
   .catch((error) => {
-    if (error.name === 'CastError') {
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
       res.status(STATUS_CODE.dataError).send({
         "message": "Данные некорректны"
       } )

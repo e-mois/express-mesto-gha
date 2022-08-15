@@ -75,7 +75,8 @@ const updateUser = (req, res) => {
     res.status(STATUS_CODE.success).send(user);
   })
   .catch((error) => {
-    if (error.name === 'CastError') {
+    console.log(error.name);
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
       res.status(STATUS_CODE.dataError).send({
         "message": "Данные некорректны"
       } )
@@ -104,7 +105,7 @@ const updateAvatar = (req, res) => {
     res.status(STATUS_CODE.success).send(user);
   })
   .catch((error) => {
-    if (error.name === 'CastError') {
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
       res.status(STATUS_CODE.dataError).send({
         "message": "Данные некорректны"
       } )
