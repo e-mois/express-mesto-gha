@@ -16,16 +16,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '62f6d4e38872d62420e05681' // вставьте сюда _id созданного в предыдущем пункте пользователя
+    _id: '62f6d4e38872d62420e05681', // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
 
   next();
-}); 
+});
 app.use('/', router);
 app.use('*', (req, res) => {
-  res.status(STATUS_CODE.notFound).send({ message: "Страница не найдена" });
-})
+  res.status(STATUS_CODE.notFound).send({ message: 'Страница не найдена' });
+});
 
 app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`)
-}) 
+  console.log(`App listening on port ${PORT}`);
+});

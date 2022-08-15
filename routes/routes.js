@@ -1,6 +1,10 @@
 const router = require('express').Router();
-const {getUsers, getUserById, createUser, updateUser, updateAvatar} = require('../controllers/users');
-const {getCards, createCard, deleteCard, likeCard, dislikeCard} = require('../controllers/cards')
+const {
+  getUsers, getUserById, createUser, updateUser, updateAvatar,
+} = require('../controllers/users');
+const {
+  getCards, createCard, deleteCard, likeCard, dislikeCard,
+} = require('../controllers/cards');
 
 router.get('/users', getUsers);
 
@@ -21,6 +25,5 @@ router.patch('/users/me/avatar', updateAvatar);
 router.put('/cards/:cardId/likes', likeCard);
 
 router.delete('/cards/:cardId/likes', dislikeCard);
-
 
 module.exports = router;
