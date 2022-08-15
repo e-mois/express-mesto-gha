@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const NotFound = require('../errors/NotFound');
 
 const getCards = (req, res) => {
   Card.find({})
@@ -18,8 +19,17 @@ const getCards = (req, res) => {
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+  .orFail(() => {
+    throw new NotFound();
+  })
   .then(card => res.send(card))
-  .catch(error => res.status(500).send({ message: error }));
+  .catch(error => {
+    if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
+    } else {
+      res.status(500).send({ message: "Произошла ошибка. Повторите запрос" })
+    };
+  })
 }
 
 const createCard = (req, res) => {
@@ -45,10 +55,16 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+  .orFail(() => {
+    throw new NotFound();
+  })
   .then((card) => {
     res.status(200).send(card);
   })
   .catch((error) => {
+    if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
+    }
     if (error.name === 'ValidationError') {
       res.status(400).send({
         "message": "Данные некорректны"
@@ -65,10 +81,16 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+  .orFail(() => {
+    throw new NotFound();
+  })
   .then((card) => {
     res.status(200).send(card);
   })
   .catch((error) => {
+    if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
+    }
     if (error.name === 'ValidationError') {
       res.status(400).send({
         "message": "Данные некорректны"

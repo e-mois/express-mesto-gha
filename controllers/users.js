@@ -19,10 +19,19 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
+  .orFail(() => {
+    throw new NotFound();
+  })
   .then(user => {
     res.send(user)
   })
-  .catch(error => res.status(500).send({ message: "Произошла ошибка. Повторите запрос" }));
+  .catch(error => {
+    if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
+    } else {
+      res.status(500).send({ message: "Произошла ошибка. Повторите запрос" });
+    }
+  });
 }
 
 const createUser = (req, res) => {
@@ -52,10 +61,16 @@ const updateUser = (req, res) => {
       runValidators: true,
       upsert: false
     })
+  .orFail(() => {
+    throw new NotFound();
+  })
   .then((user) => {
     res.status(201).send(user);
   })
   .catch((error) => {
+    if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
+    }
     if (error.name === 'ValidationError') {
       res.status(400).send({
         "message": "Данные некорректны"
@@ -76,10 +91,16 @@ const updateAvatar = (req, res) => {
       runValidators: true,
       upsert: false
     })
+  .orFail(() => {
+    throw new NotFound();
+  })
   .then((user) => {
     res.status(200).send(user);
   })
   .catch((error) => {
+    if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
+    }
     if (error.name === 'ValidationError') {
       res.status(400).send({
         "message": "Данные некорректны"
