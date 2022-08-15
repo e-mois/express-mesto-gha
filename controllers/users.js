@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const NotFound = require('../errors/NotFound');
+const STATUS_CODE = require('../errors/errorCode');
 
 
 const getUsers = (req, res) => {
