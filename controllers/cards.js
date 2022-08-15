@@ -24,7 +24,11 @@ const deleteCard = (req, res) => {
   })
   .then(card => res.send(card))
   .catch(error => {
-    if (error.name === "NotFound") {
+    if (error.name === 'ValidationError') {
+      res.status(400).send({
+        "message": "Данные некорректны"
+      } )
+    } else if (error.name === "NotFound") {
       res.status(error.status).send({ message: error.message })
     } else {
       res.status(500).send({ message: "Произошла ошибка. Повторите запрос" })
@@ -62,13 +66,12 @@ const likeCard = (req, res) => {
     res.status(200).send(card);
   })
   .catch((error) => {
-    if (error.name === "NotFound") {
-      res.status(error.status).send({ message: error.message })
-    }
     if (error.name === 'ValidationError') {
       res.status(400).send({
         "message": "Данные некорректны"
       } )
+    } else if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
     } else {
       res.status(500).send({ message: "Произошла ошибка. Повторите запрос" })
     }
@@ -88,13 +91,12 @@ const dislikeCard = (req, res) => {
     res.status(200).send(card);
   })
   .catch((error) => {
-    if (error.name === "NotFound") {
-      res.status(error.status).send({ message: error.message })
-    }
     if (error.name === 'ValidationError') {
       res.status(400).send({
         "message": "Данные некорректны"
       } )
+    } else if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
     } else {
       res.status(500).send({ message: "Произошла ошибка. Повторите запрос" })
     }

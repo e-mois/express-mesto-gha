@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const NotFound = require('../errors/NotFound');
 
 
 const getUsers = (req, res) => {
@@ -12,7 +13,7 @@ const getUsers = (req, res) => {
         "message": "Данные некорректны"
       } )
     } else {
-      res.status(500).send({ message: "Произошла ошибка. Повторите запрос" })
+      res.status(500).send({ message: "Произошла ошибка на сервере. Повторите запрос" })
     }
   })
 }
@@ -23,13 +24,17 @@ const getUserById = (req, res) => {
     throw new NotFound();
   })
   .then(user => {
-    res.send(user)
+    res.status(200).send(user);
   })
   .catch(error => {
-    if (error.name === "NotFound") {
+    if (error.name === 'ValidationError') {
+      res.status(400).send({
+        "message": "Данные некорректны"
+      } )
+    } else if (error.name === "NotFound") {
       res.status(error.status).send({ message: error.message })
     } else {
-      res.status(500).send({ message: "Произошла ошибка. Повторите запрос" });
+      res.status(500).send({ message: "Произошла ошибка на сервере. Повторите запрос" });
     }
   });
 }
@@ -46,7 +51,7 @@ const createUser = (req, res) => {
         "message": "Данные некорректны"
       } )
     } else {
-      res.status(500).send({ message: "Произошла ошибка. Повторите запрос" })
+      res.status(500).send({ message: "Произошла ошибка на сервере. Повторите запрос" })
     }
   })
 }
@@ -65,18 +70,17 @@ const updateUser = (req, res) => {
     throw new NotFound();
   })
   .then((user) => {
-    res.status(201).send(user);
+    res.status(200).send(user);
   })
   .catch((error) => {
-    if (error.name === "NotFound") {
-      res.status(error.status).send({ message: error.message })
-    }
     if (error.name === 'ValidationError') {
       res.status(400).send({
         "message": "Данные некорректны"
       } )
+    } else if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
     } else {
-      res.status(500).send({ message: "Произошла ошибка. Повторите запрос" })
+      res.status(500).send({ message: "Произошла ошибка на сервере. Повторите запрос" })
     }
   })
 }
@@ -98,15 +102,14 @@ const updateAvatar = (req, res) => {
     res.status(200).send(user);
   })
   .catch((error) => {
-    if (error.name === "NotFound") {
-      res.status(error.status).send({ message: error.message })
-    }
     if (error.name === 'ValidationError') {
       res.status(400).send({
         "message": "Данные некорректны"
       } )
+    } else if (error.name === "NotFound") {
+      res.status(error.status).send({ message: error.message })
     } else {
-      res.status(500).send({ message: "Произошла ошибка. Повторите запрос" })
+      res.status(500).send({ message: "Произошла ошибка на сервере. Повторите запрос" })
     }
   })
 }
