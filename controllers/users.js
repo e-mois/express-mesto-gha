@@ -68,7 +68,6 @@ const updateUser = (req, res) => {
       res.status(STATUS_CODE.success).send(user);
     })
     .catch((error) => {
-      console.log(error.name);
       if (error.name === 'ValidationError' || error.name === 'CastError') {
         res.status(STATUS_CODE.dataError).send({
           message: 'Данные некорректны',
