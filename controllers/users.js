@@ -7,14 +7,8 @@ const getUsers = (req, res) => {
     .then((users) => {
       res.status(STATUS_CODE.success).send(users);
     })
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res.status(STATUS_CODE.dataError).send({
-          message: 'Данные некорректны',
-        });
-      } else {
-        res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка на сервере. Повторите запрос' });
-      }
+    .catch(() => {
+      res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка на сервере. Повторите запрос' });
     });
 };
 
@@ -27,7 +21,6 @@ const getUserById = (req, res) => {
       res.status(STATUS_CODE.success).send(user);
     })
     .catch((error) => {
-      console.log(error.name);
       if (error.name === 'CastError') {
         res.status(STATUS_CODE.dataError).send({
           message: 'Данные некорректны',

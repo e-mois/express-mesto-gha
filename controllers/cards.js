@@ -7,14 +7,8 @@ const getCards = (req, res) => {
     .then((cards) => {
       res.status(STATUS_CODE.success).send(cards);
     })
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res.status(STATUS_CODE.dataError).send({
-          message: 'Данные некорректны',
-        });
-      } else {
-        res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка. Повторите запрос' });
-      }
+    .catch(() => {
+      res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка. Повторите запрос' });
     });
 };
 
@@ -67,7 +61,7 @@ const likeCard = (req, res) => {
       res.status(STATUS_CODE.success).send(card);
     })
     .catch((error) => {
-      if (error.name === 'ValidationError' || error.name === 'CastError') {
+      if (error.name === 'CastError') {
         res.status(STATUS_CODE.dataError).send({
           message: 'Данные некорректны',
         });
@@ -92,7 +86,7 @@ const dislikeCard = (req, res) => {
       res.status(STATUS_CODE.success).send(card);
     })
     .catch((error) => {
-      if (error.name === 'ValidationError' || error.name === 'CastError') {
+      if (error.name === 'CastError') {
         res.status(STATUS_CODE.dataError).send({
           message: 'Данные некорректны',
         });
