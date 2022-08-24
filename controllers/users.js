@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFound = require('../errors/NotFound');
 const STATUS_CODE = require('../errors/errorCode');
@@ -23,7 +25,7 @@ const getUserById = (req, res) => {
     .catch((error) => {
       if (error.name === 'CastError') {
         res.status(STATUS_CODE.dataError).send({
-          message: 'Данные некорректны',
+          message: 'Данные некорректные',
         });
       } else if (error.name === 'NotFound') {
         res.status(error.status).send({ message: error.message });
@@ -34,20 +36,29 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => {
-      res.status(STATUS_CODE.successCreate).send(user);
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
     })
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res.status(STATUS_CODE.dataError).send({
-          message: 'Данные некорректны',
-        });
-      } else {
-        res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка на сервере. Повторите запрос' });
-      }
-    });
+      .then((user) => {
+        res.status(STATUS_CODE.successCreate).send(user);
+      })
+      .catch((error) => {
+        if (error.name === 'ValidationError') {
+          res.status(STATUS_CODE.dataError).send({
+            message: 'Данные некорректны',
+          });
+        } else {
+          res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка на сервере. Повторите запрос' });
+        }
+      }));
 };
 
 const updateUser = (req, res) => {
@@ -110,6 +121,43 @@ const updateAvatar = (req, res) => {
     });
 };
 
+// controllers/users.js
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      // создадим токен
+      const token = jwt.sign({ _id: user._id }, 'secret-code', { expiresIn: '7d' });
+
+      // запишем токен в куки
+      res
+        .cookie('access_token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+        })
+        .status(STATUS_CODE.success)
+        .send({ message: 'Аутентификация прошла успешно' });
+    })
+    .catch((err) => {
+      res
+        .status(STATUS_CODE.noAuth)
+        .send({ message: err.message });
+    });
+};
+
+const getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        next(new NotFound());
+      }
+      return res.status(STATUS_CODE.success).send(user);
+    })
+    .catch(next);
+};
+
 module.exports = {
-  getUsers, getUserById, createUser, updateUser, updateAvatar,
+  getUsers, getUserById, createUser, updateUser, updateAvatar, login, getCurrentUser,
 };
