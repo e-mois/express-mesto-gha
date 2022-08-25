@@ -1,37 +1,34 @@
 const Card = require('../models/card');
 const NotFound = require('../errors/NotFound');
 const STATUS_CODE = require('../errors/errorCode');
+const CastomizeError = require('../errors/CastomizeError');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       res.status(STATUS_CODE.success).send(cards);
     })
-    .catch(() => {
-      res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка. Повторите запрос' });
-    });
+    .catch(next);
 };
 
-const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+const deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId)
     .orFail(() => {
-      throw new NotFound();
+      throw new NotFound('Карточка не найдена');
     })
-    .then((card) => res.send(card))
-    .catch((error) => {
-      if (error.name === 'CastError') {
-        res.status(STATUS_CODE.dataError).send({
-          message: 'Данные некорректны',
-        });
-      } else if (error.name === 'NotFound') {
-        res.status(error.status).send({ message: error.message });
+    .then((currentCard) => {
+      if (currentCard.owner === req.user._id) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .then(() => res.send({ message: 'Карточка удалена успешно' }))
+          .catch(next);
       } else {
-        res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка. Повторите запрос' });
+        next(new CastomizeError('Удалить данную карточку невозможно. Вы не являетесь ее создателем'));
       }
-    });
+    })
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link, owner = req.user._id } = req.body;
   Card.create({ name, link, owner })
     .then((card) => {
@@ -39,61 +36,51 @@ const createCard = (req, res) => {
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        res.status(STATUS_CODE.dataError).send({
-          message: 'Данные некорректны',
-        });
+        next(new CastomizeError('Данные некорректны'));
       } else {
-        res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка. Повторите запрос' });
+        next(error);
       }
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => {
-      throw new NotFound();
+      throw new NotFound('Карточка не найдена');
     })
     .then((card) => {
       res.status(STATUS_CODE.success).send(card);
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        res.status(STATUS_CODE.dataError).send({
-          message: 'Данные некорректны',
-        });
-      } else if (error.name === 'NotFound') {
-        res.status(error.status).send({ message: error.message });
+        next(new CastomizeError('Данные некорректны'));
       } else {
-        res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка. Повторите запрос' });
+        next(error);
       }
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => {
-      throw new NotFound();
+      throw new NotFound('Карточка не найдена');
     })
     .then((card) => {
       res.status(STATUS_CODE.success).send(card);
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        res.status(STATUS_CODE.dataError).send({
-          message: 'Данные некорректны',
-        });
-      } else if (error.name === 'NotFound') {
-        res.status(error.status).send({ message: error.message });
+        next(new CastomizeError('Данные некорректны'));
       } else {
-        res.status(STATUS_CODE.serverError).send({ message: 'Произошла ошибка. Повторите запрос' });
+        next(error);
       }
     });
 };
