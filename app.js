@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
 const STATUS_CODE = require('./errors/errorCode');
 const router = require('./routes/routes');
 const { login, createUser } = require('./controllers/users');
@@ -24,6 +25,8 @@ app.use('/', router);
 app.use('*', (req, res) => {
   res.status(STATUS_CODE.notFound).send({ message: 'Страница не найдена' });
 });
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
