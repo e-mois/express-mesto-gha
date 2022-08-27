@@ -21,13 +21,13 @@ app.use(cookieParser());
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    link: Joi.string().min(2).max(200),
+    about: Joi.string().min(2).max(200),
   }),
 }), login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    link: Joi.string().min(2).max(200),
+    about: Joi.string().min(2).max(200),
   }),
 }), createUser);
 
