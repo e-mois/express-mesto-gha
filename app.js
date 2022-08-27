@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const STATUS_CODE = require('./errors/errorCode');
 const router = require('./routes/routes');
 const { login, createUser } = require('./controllers/users');
@@ -17,8 +18,18 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(express.json());
 app.use(cookieParser());
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    link: Joi.string().min(2).max(200),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    link: Joi.string().min(2).max(200),
+  }),
+}), createUser);
 
 app.use(auth);
 app.use('/', router);
@@ -28,7 +39,7 @@ app.use('*', (req, res) => {
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 
