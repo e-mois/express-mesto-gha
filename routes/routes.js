@@ -21,21 +21,21 @@ router.get('/cards', getCards);
 
 router.post('/cards/', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    link: Joi.string().min(2).max(200),
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().min(2).max(200),
   }),
 }), createCard);
 
 router.delete('/cards/:cardId', celebrate({
   params: Joi.object().keys({
-    postId: Joi.string().hex().length(24),
+    cardId: Joi.string().hex().length(24),
   }),
 }), deleteCard);
 
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    link: Joi.string().min(2).max(200),
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().min(2).max(200),
   }),
 }), updateUser);
 
@@ -47,13 +47,13 @@ router.patch('/users/me/avatar', celebrate({
 
 router.put('/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    postId: Joi.string().hex().length(24),
+    cardId: Joi.string().hex().length(24),
   }),
 }), likeCard);
 
 router.delete('/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    postId: Joi.string().hex().length(24),
+    cardId: Joi.string().hex().length(24),
   }),
 }), dislikeCard);
 
