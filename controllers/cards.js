@@ -35,6 +35,7 @@ const createCard = (req, res, next) => {
       res.status(STATUS_CODE.successCreate).send(card);
     })
     .catch((error) => {
+      console.log(error);
       if (error.name === 'ValidationError') {
         next(new CastomizeError('Данные некорректны'));
       } else {

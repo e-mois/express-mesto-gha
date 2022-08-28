@@ -27,7 +27,7 @@ app.post('/signin', celebrate({
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(200),
+    about: Joi.string().min(2).max(30),
     avatar: Joi.string().regex(/https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\w\w(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i),
     email: Joi.string().required().email({ tlds: { allow: false } }),
     password: Joi.string().required().min(2).max(30),
@@ -45,7 +45,7 @@ app.use(errors());
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
-
+  console.log(err);
   res
     .status(statusCode)
     .send({

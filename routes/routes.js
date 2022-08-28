@@ -22,7 +22,8 @@ router.get('/cards', getCards);
 router.post('/cards/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().min(2).max(200),
+    link: Joi.string().required().min(2).max(200)
+      .regex(/https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\w\w(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i),
   }),
 }), createCard);
 
@@ -35,13 +36,13 @@ router.delete('/cards/:cardId', celebrate({
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(200),
+    about: Joi.string().required().min(2).max(30),
   }),
 }), updateUser);
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().min(2).max(200),
+    avatar: Joi.string().min(2).max(200).regex(/https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\w\w(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i),
   }),
 }), updateAvatar);
 
