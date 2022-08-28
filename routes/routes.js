@@ -13,7 +13,7 @@ router.get('/users/me', getCurrentUser);
 
 router.get('/users/:userId', celebrate({
   params: Joi.object().keys({
-    postId: Joi.string().hex().length(24),
+    userId: Joi.string().hex().length(24),
   }),
 }), getUserById);
 
@@ -35,7 +35,7 @@ router.delete('/cards/:cardId', celebrate({
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().min(2).max(200),
+    about: Joi.string().required().min(2).max(200),
   }),
 }), updateUser);
 

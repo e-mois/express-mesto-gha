@@ -27,10 +27,10 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(200),
-    avater: Joi.string().pattern(/^(https?:\/\/)?([\w\.]+)\.([a-z]{2,6}\.?)(\/[\w\.]*)*\\/?$/),
+    avatar: Joi.string().regex(/https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\w\w(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i),
     email: Joi.string().required().email({ tlds: { allow: false } }),
     password: Joi.string().required().min(2).max(30),
-  }).unknown(true),
+  }),
 }), createUser);
 
 app.use(auth);
@@ -56,3 +56,5 @@ app.use((err, req, res) => {
 });
 
 app.listen(PORT);
+
+// avatar: Joi.string().regex(/[-a-zA-Z0-9@:%_+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_+.~#?&//=]*)?/gi),
