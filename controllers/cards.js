@@ -2,6 +2,7 @@ const Card = require('../models/card');
 const NotFound = require('../errors/NotFound');
 const STATUS_CODE = require('../errors/errorCode');
 const CastomizeError = require('../errors/CastomizeError');
+const Forbidden = require('../errors/Forbidden');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -17,12 +18,12 @@ const deleteCard = (req, res, next) => {
       throw new NotFound('Карточка не найдена');
     })
     .then((currentCard) => {
-      if (currentCard.owner === req.user._id) {
+      if (currentCard.owner.toString() === req.user._id) {
         Card.findByIdAndRemove(req.params.cardId)
-          .then(() => res.send({ message: 'Карточка удалена успешно' }))
+          .then(() => res.status(STATUS_CODE.success).send({ message: 'Карточка удалена успешно' }))
           .catch(next);
       } else {
-        next(new CastomizeError('Удалить данную карточку невозможно. Вы не являетесь ее создателем'));
+        next(new Forbidden('Удалить данную карточку невозможно. Вы не являетесь ее создателем'));
       }
     })
     .catch(next);
@@ -35,7 +36,6 @@ const createCard = (req, res, next) => {
       res.status(STATUS_CODE.successCreate).send(card);
     })
     .catch((error) => {
-      console.log(error);
       if (error.name === 'ValidationError') {
         next(new CastomizeError('Данные некорректны'));
       } else {
