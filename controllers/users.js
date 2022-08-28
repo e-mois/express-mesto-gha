@@ -116,10 +116,10 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findUserByCredentials(email, password)
-    .orFail(() => {
-      throw new NotFound('Пользователь не найден');
-    })
     .then((user) => {
+      if (!user) {
+        next(new NotFound());
+      }
       // создадим токен
       const token = jwt.sign({ _id: user._id }, 'secret-code', { expiresIn: '7d' });
 
