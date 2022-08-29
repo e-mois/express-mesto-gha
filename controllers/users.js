@@ -45,12 +45,7 @@ const createUser = (req, res, next) => {
       password: hash,
     })
       .then((user) => {
-        // res.status(STATUS_CODE.successCreate).send(user);
-        const newUser = { ...user };
-        console.log(newUser);
-        delete newUser._doc.password;
-        console.log(newUser);
-        res.status(STATUS_CODE.success).send(newUser._doc);
+        res.status(STATUS_CODE.successCreate).send(user);
       })
       .catch((error) => {
         if (error.name === 'ValidationError') {
