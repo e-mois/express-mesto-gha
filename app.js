@@ -7,7 +7,6 @@ const routerUser = require('./routes/routesUser');
 const routerCard = require('./routes/routesCard');
 const { login, createUser } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
-const NotAuthError = require('./errors/NotAuthError');
 const getErrorMessage = require('./middlewares/getErrorMessage');
 
 const { PORT = 3000 } = process.env;
@@ -39,8 +38,8 @@ app.post('/signup', celebrate({
 app.use(auth);
 app.use('/users', routerUser);
 app.use('/cards', routerCard);
-app.use('*', () => {
-  throw NotAuthError('Страница не найдена');
+app.use('*', (res, req, err, next) => {
+  next(err);
 });
 
 app.get('/signout', (req, res) => {
