@@ -3,10 +3,12 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const { celebrate, Joi } = require('celebrate');
-const STATUS_CODE = require('./errors/errorCode');
-const router = require('./routes/routes');
+const routerUser = require('./routes/routesUser');
+const routerCard = require('./routes/routesCard');
 const { login, createUser } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
+const NotAuthError = require('./errors/NotAuthError');
+const getErrorMessage = require('./middlewares/getErrorMessage');
 
 const { PORT = 3000 } = process.env;
 
@@ -21,40 +23,32 @@ app.use(cookieParser());
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email({ tlds: { allow: false } }),
-    password: Joi.string().required().min(2).max(30),
+    password: Joi.string().required(),
   }),
 }), login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\w\w(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i),
+    avatar: Joi.string().regex(/https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\.\w{2,}(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i),
     email: Joi.string().required().email({ tlds: { allow: false } }),
-    password: Joi.string().required().min(2).max(30),
+    password: Joi.string().required(),
   }),
 }), createUser);
 
 app.use(auth);
-app.use('/', router);
-app.use('*', (req, res) => {
-  res.status(STATUS_CODE.notFound).send({ message: 'Страница не найдена' });
+app.use('/users', routerUser);
+app.use('/cards', routerCard);
+app.use('*', () => {
+  throw NotAuthError('Страница не найдена');
+});
+
+app.get('/signout', (req, res) => {
+  res.clearCookie('access_token').send({ message: 'Выход' });
 });
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  // если у ошибки нет статуса, выставляем 500
-  const { statusCode = 500, message } = err;
-  console.log(err);
-  res
-    .status(statusCode)
-    .send({
-      // проверяем статус и выставляем сообщение в зависимости от него
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  next();
-});
+app.use(getErrorMessage);
 
 app.listen(PORT);

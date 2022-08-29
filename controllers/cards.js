@@ -1,13 +1,12 @@
 const Card = require('../models/card');
 const NotFound = require('../errors/NotFound');
-const STATUS_CODE = require('../errors/errorCode');
 const CastomizeError = require('../errors/CastomizeError');
 const Forbidden = require('../errors/Forbidden');
 
 const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
-      res.status(STATUS_CODE.success).send(cards);
+      res.send(cards);
     })
     .catch(next);
 };
@@ -20,7 +19,7 @@ const deleteCard = (req, res, next) => {
     .then((currentCard) => {
       if (currentCard.owner.toString() === req.user._id) {
         Card.findByIdAndRemove(req.params.cardId)
-          .then(() => res.status(STATUS_CODE.success).send({ message: 'Карточка удалена успешно' }))
+          .then(() => res.send({ message: 'Карточка удалена успешно' }))
           .catch(next);
       } else {
         next(new Forbidden('Удалить данную карточку невозможно. Вы не являетесь ее создателем'));
@@ -33,7 +32,7 @@ const createCard = (req, res, next) => {
   const { name, link, owner = req.user._id } = req.body;
   Card.create({ name, link, owner })
     .then((card) => {
-      res.status(STATUS_CODE.successCreate).send(card);
+      res.send(card);
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
@@ -54,7 +53,7 @@ const likeCard = (req, res, next) => {
       throw new NotFound('Карточка не найдена');
     })
     .then((card) => {
-      res.status(STATUS_CODE.success).send(card);
+      res.send(card);
     })
     .catch((error) => {
       if (error.name === 'CastError') {
@@ -75,7 +74,7 @@ const dislikeCard = (req, res, next) => {
       throw new NotFound('Карточка не найдена');
     })
     .then((card) => {
-      res.status(STATUS_CODE.success).send(card);
+      res.send(card);
     })
     .catch((error) => {
       if (error.name === 'CastError') {

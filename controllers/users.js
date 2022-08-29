@@ -2,14 +2,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFound = require('../errors/NotFound');
-const STATUS_CODE = require('../errors/errorCode');
 const CastomizeError = require('../errors/CastomizeError');
 const ConflictError = require('../errors/ConflictError');
 
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
-      res.status(STATUS_CODE.success).send(users);
+      res.send(users);
     })
     .catch(next);
 };
@@ -20,7 +19,7 @@ const getUserById = (req, res, next) => {
       throw new NotFound('Пользователь не найден');
     })
     .then((user) => {
-      res.status(STATUS_CODE.success).send(user);
+      res.send(user);
     })
     .catch((error) => {
       if (error.name === 'CastError') {
@@ -52,7 +51,7 @@ const createUser = (req, res, next) => {
           email: user.email,
           _id: user._id,
         };
-        res.status(STATUS_CODE.successCreate).send(userData);
+        res.send(userData);
       })
       .catch((error) => {
         if (error.name === 'ValidationError') {
@@ -80,7 +79,7 @@ const updateUser = (req, res, next) => {
       throw new NotFound('Пользователь не найден');
     })
     .then((user) => {
-      res.status(STATUS_CODE.success).send(user);
+      res.send(user);
     })
     .catch((error) => {
       if (error.name === 'ValidationError' || error.name === 'CastError') {
@@ -106,7 +105,7 @@ const updateAvatar = (req, res, next) => {
       throw new NotFound('Пользователь не найден');
     })
     .then((user) => {
-      res.status(STATUS_CODE.success).send(user);
+      res.send(user);
     })
     .catch((error) => {
       if (error.name === 'ValidationError' || error.name === 'CastError') {
@@ -136,7 +135,6 @@ const login = (req, res, next) => {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
         })
-        .status(STATUS_CODE.success)
         .send({ message: 'Аутентификация прошла успешно' });
     })
     .catch(next);
@@ -148,7 +146,7 @@ const getCurrentUser = (req, res, next) => {
       if (!user) {
         next(new NotFound());
       }
-      return res.status(STATUS_CODE.success).send(user);
+      return res.send(user);
     })
     .catch(next);
 };
